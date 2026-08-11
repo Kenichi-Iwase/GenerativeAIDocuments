@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ラッキーセブン スロット</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<main class="machine">
+  <header class="machine__head">
+    <h1 class="logo">
+      <span class="logo__mark">🎰</span>
+      <span class="logo__text">LUCKY&nbsp;SEVEN</span>
+    </h1>
+    <p class="tagline">3リール × 5ライン スロットマシン</p>
+  </header>
+
+  <section class="screen" aria-label="リール">
+    <div class="screen__glass"></div>
+
+    <div class="paylabels" aria-hidden="true">
+      <span data-line="1">2</span><span data-line="0">1</span><span data-line="2">3</span>
+    </div>
+
+    <div class="reels" id="reels"></div>
+
+    <div class="freespin-badge" id="freeSpinBadge" hidden>
+      <span class="freespin-badge__label">FREE SPIN</span>
+      <span class="freespin-badge__count" id="freeSpinCount">0</span>
+    </div>
+
+  </section>
+
+  <div class="bannerbar">
+    <p class="banner" id="banner" role="status" aria-live="polite"></p>
+  </div>
+
+  <section class="meters">
+    <div class="meter">
+      <span class="meter__label">CREDIT</span>
+      <span class="meter__value" id="credit">0</span>
+    </div>
+    <div class="meter meter--bet">
+      <span class="meter__label">BET</span>
+      <span class="meter__value" id="totalBet">0</span>
+      <span class="meter__sub" id="betDetail">1 × 5ライン</span>
+    </div>
+    <div class="meter meter--win">
+      <span class="meter__label">WIN</span>
+      <span class="meter__value" id="win">0</span>
+    </div>
+  </section>
+
+  <section class="controls">
+    <div class="controls__bet">
+      <button type="button" class="btn btn--round" id="betDown" aria-label="ベットを下げる">−</button>
+      <button type="button" class="btn btn--round" id="betUp" aria-label="ベットを上げる">＋</button>
+      <button type="button" class="btn btn--small btn--wide" id="betMax">MAX BET</button>
+    </div>
+
+    <button type="button" class="btn btn--spin" id="spin">
+      <span class="btn__main">SPIN</span>
+      <span class="btn__sub">SPACE</span>
+    </button>
+
+    <div class="controls__side">
+      <button type="button" class="btn btn--small" id="auto">AUTO</button>
+      <button type="button" class="btn btn--small" id="sound" aria-pressed="true">🔊 ON</button>
+    </div>
+  </section>
+
+  <section class="footer-actions">
+    <button type="button" class="link-btn" id="togglePaytable" aria-expanded="false" aria-controls="paytable">配当表を見る</button>
+    <button type="button" class="link-btn" id="reset">クレジットをリセット</button>
+  </section>
+
+  <section class="paytable" id="paytable" hidden>
+    <h2 class="paytable__title">配当表<small>（1ラインあたりのベット額 × 倍率）</small></h2>
+    <ul class="paytable__list" id="paytableList"></ul>
+
+    <div class="paytable__rules">
+      <h3>ルール</h3>
+      <ul>
+        <li>有効ラインは常に5本（横3本・斜め2本）です。総ベット＝ラインベット × 5。</li>
+        <li>1ライン上に同じ絵柄が左から3つ揃うと配当が成立します。</li>
+        <li>🃏 ワイルドは他のすべての絵柄の代わりになります。ワイルド自身が3つ揃うと最高配当です。</li>
+        <li>🍒 と 🍋 は左から2つ揃うだけでも少額の配当があります。</li>
+        <li>💎 が画面内のどこでも3つ以上出現すると、総ベットの2倍を獲得し<strong>フリースピン5回</strong>が始まります。</li>
+        <li>フリースピン中はベットが不要です。期間中に再度💎が3つ揃うと回数が追加されます。</li>
+      </ul>
+      <p class="paytable__rtp">理論上の還元率（RTP）はおよそ 93%、当選率はおよそ 41% です（40万回のシミュレーションによる実測値）。</p>
+    </div>
+  </section>
+</main>
+
+<script src="script.js"></script>
+</body>
+</html>
