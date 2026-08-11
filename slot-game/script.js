@@ -454,11 +454,13 @@ function winMessage(outcome) {
   const lineWins = outcome.wins.filter((w) => !w.scatter);
   const head = big ? '🎉 BIG WIN！ ' : '';
 
-  if (lineWins.length === 0) return `${head}${outcome.total.toLocaleString()} クレジット獲得`;
+  const gain = `+${outcome.total.toLocaleString()} クレジット`;
+
+  if (lineWins.length === 0) return `${head}💎 スキャッター｜${gain}`;
 
   const best = lineWins.reduce((a, b) => (b.amount > a.amount ? b : a));
   const lines = lineWins.map((w) => w.lineNo).sort((a, b) => a - b).join('・');
-  return `${head}${best.symbol.ch}×${best.count}  ライン${lines}  ${outcome.total.toLocaleString()} クレジット`;
+  return `${head}${best.symbol.ch} ×${best.count}｜ライン ${lines}｜${gain}`;
 }
 
 function stopAuto() {
