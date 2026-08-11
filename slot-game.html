@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ラッキースロット</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: "Hiragino Sans", "Meiryo", sans-serif;
+    background: linear-gradient(135deg, #1a0033 0%, #4a0066 50%, #1a0033 100%);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    color: #fff;
+  }
+
+  .machine {
+    background: linear-gradient(145deg, #b8860b, #daa520, #b8860b);
+    border-radius: 24px;
+    padding: 28px;
+    box-shadow:
+      0 0 60px rgba(255, 215, 0, 0.4),
+      inset 0 4px 12px rgba(255, 255, 255, 0.3),
+      inset 0 -4px 12px rgba(0, 0, 0, 0.3);
+    max-width: 460px;
+    width: 100%;
+    border: 4px solid #8b6914;
+  }
+
+  h1 {
+    text-align: center;
+    font-size: 32px;
+    color: #fff;
+    text-shadow:
+      2px 2px 0 #ff0066,
+      4px 4px 8px rgba(0, 0, 0, 0.5);
+    margin-bottom: 8px;
+    letter-spacing: 4px;
+  }
+
+  .subtitle {
+    text-align: center;
+    color: #4a0066;
+    font-size: 14px;
+    margin-bottom: 20px;
+    font-weight: bold;
+  }
+
+  .display {
+    background: #000;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 16px;
+    border: 4px solid #333;
+    box-shadow: inset 0 0 20px rgba(255, 215, 0, 0.3);
+  }
+
+  .reels {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    margin-bottom: 16px;
+  }
+
+  .reel {
+    width: 100px;
+    height: 120px;
+    background: linear-gradient(180deg, #fff 0%, #f0f0f0 50%, #fff 100%);
+    border-radius: 8px;
+    overflow: hidden;
+    position: relative;
+    border: 3px solid #ffd700;
+    box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.3);
+  }
+
+  .reel-strip {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    transition: none;
+  }
+
+  .symbol {
+    height: 120px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 64px;
+    line-height: 1;
+  }
+
+  .reel.spinning .reel-strip {
+    animation: spin 0.1s linear infinite;
+  }
+
+  @keyframes spin {
+    from { transform: translateY(0); }
+    to { transform: translateY(-120px); }
+  }
+
+  .stats {
+    display: flex;
+    justify-content: space-around;
+    background: #1a1a1a;
+    padding: 12px;
+    border-radius: 8px;
+    border: 2px solid #ffd700;
+  }
+
+  .stat {
+    text-align: center;
+  }
+
+  .stat-label {
+    font-size: 11px;
+    color: #ffd700;
+    letter-spacing: 2px;
+    margin-bottom: 4px;
+  }
+
+  .stat-value {
+    font-size: 22px;
+    font-weight: bold;
+    color: #fff;
+    font-family: "Courier New", monospace;
+    text-shadow: 0 0 8px rgba(255, 215, 0, 0.8);
+  }
+
+  .message {
+    text-align: center;
+    min-height: 32px;
+    margin: 12px 0;
+    font-size: 18px;
+    font-weight: bold;
+    color: #4a0066;
+    transition: all 0.3s;
+  }
+
+  .message.win {
+    color: #ff0066;
+    animation: pulse 0.5s ease-in-out infinite alternate;
+    font-size: 22px;
+  }
+
+  .message.jackpot {
+    color: #ff0000;
+    font-size: 26px;
+    animation: rainbow 1s linear infinite;
+  }
+
+  @keyframes pulse {
+    from { transform: scale(1); }
+    to { transform: scale(1.1); }
+  }
+
+  @keyframes rainbow {
+    0% { color: #ff0000; }
+    25% { color: #ffff00; }
+    50% { color: #00ff00; }
+    75% { color: #00ffff; }
+    100% { color: #ff00ff; }
+  }
+
+  .controls {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .bet-controls {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.3);
+    padding: 8px;
+    border-radius: 8px;
+  }
+
+  .bet-controls label {
+    color: #4a0066;
+    font-weight: bold;
+    font-size: 14px;
+  }
+
+  .bet-btn {
+    background: #4a0066;
+    color: #fff;
+    border: 2px solid #ffd700;
+    border-radius: 6px;
+    width: 32px;
+    height: 32px;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .bet-btn:hover:not(:disabled) {
+    background: #6a0088;
+    transform: scale(1.1);
+  }
+
+  .bet-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .bet-value {
+    color: #fff;
+    background: #000;
+    padding: 4px 16px;
+    border-radius: 6px;
+    font-family: "Courier New", monospace;
+    font-size: 18px;
+    font-weight: bold;
+    min-width: 60px;
+    text-align: center;
+  }
+
+  .spin-btn {
+    background: linear-gradient(145deg, #ff0066, #cc0044);
+    color: #fff;
+    border: 4px solid #ffd700;
+    border-radius: 12px;
+    padding: 16px;
+    font-size: 22px;
+    font-weight: bold;
+    cursor: pointer;
+    letter-spacing: 4px;
+    box-shadow:
+      0 6px 0 #8b0033,
+      0 8px 20px rgba(0, 0, 0, 0.4);
+    transition: all 0.1s;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+  }
+
+  .spin-btn:hover:not(:disabled) {
+    background: linear-gradient(145deg, #ff3388, #dd0055);
+    transform: translateY(2px);
+    box-shadow:
+      0 4px 0 #8b0033,
+      0 6px 15px rgba(0, 0, 0, 0.4);
+  }
+
+  .spin-btn:active:not(:disabled) {
+    transform: translateY(6px);
+    box-shadow: 0 0 0 #8b0033;
+  }
+
+  .spin-btn:disabled {
+    background: #666;
+    cursor: not-allowed;
+    box-shadow: 0 6px 0 #333;
+  }
+
+  .paytable {
+    margin-top: 16px;
+    background: rgba(0, 0, 0, 0.5);
+    padding: 12px;
+    border-radius: 8px;
+    border: 2px solid #ffd700;
+  }
+
+  .paytable-title {
+    text-align: center;
+    color: #ffd700;
+    font-size: 14px;
+    letter-spacing: 2px;
+    margin-bottom: 8px;
+    font-weight: bold;
+  }
+
+  .paytable-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 4px 8px;
+    font-size: 14px;
+    color: #fff;
+  }
+
+  .paytable-row .symbols {
+    font-size: 20px;
+  }
+
+  .paytable-row .payout {
+    font-family: "Courier New", monospace;
+    color: #ffd700;
+    font-weight: bold;
+  }
+
+  .flash {
+    animation: flash 0.5s ease-in-out 3;
+  }
+
+  @keyframes flash {
+    0%, 100% { box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.3); }
+    50% { box-shadow: inset 0 0 30px rgba(255, 215, 0, 1), 0 0 20px rgba(255, 215, 0, 0.8); }
+  }
+</style>
+</head>
+<body>
+  <div class="machine">
+    <h1>ラッキースロット</h1>
+    <div class="subtitle">★ LUCKY SLOT MACHINE ★</div>
+
+    <div class="display">
+      <div class="reels">
+        <div class="reel" id="reel0"><div class="reel-strip"></div></div>
+        <div class="reel" id="reel1"><div class="reel-strip"></div></div>
+        <div class="reel" id="reel2"><div class="reel-strip"></div></div>
+      </div>
+      <div class="stats">
+        <div class="stat">
+          <div class="stat-label">CREDIT</div>
+          <div class="stat-value" id="credit">1000</div>
+        </div>
+        <div class="stat">
+          <div class="stat-label">BET</div>
+          <div class="stat-value" id="betDisplay">10</div>
+        </div>
+        <div class="stat">
+          <div class="stat-label">WIN</div>
+          <div class="stat-value" id="win">0</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="message" id="message">スピンボタンを押してね!</div>
+
+    <div class="controls">
+      <div class="bet-controls">
+        <label>BET:</label>
+        <button class="bet-btn" id="betDown">-</button>
+        <div class="bet-value" id="betValue">10</div>
+        <button class="bet-btn" id="betUp">+</button>
+        <button class="bet-btn" id="betMax" style="width: auto; padding: 0 12px;">MAX</button>
+      </div>
+      <button class="spin-btn" id="spinBtn">SPIN!</button>
+    </div>
+
+    <div class="paytable">
+      <div class="paytable-title">◆ PAYOUT TABLE ◆</div>
+      <div class="paytable-row"><span class="symbols">7️⃣ 7️⃣ 7️⃣</span><span class="payout">×100</span></div>
+      <div class="paytable-row"><span class="symbols">💎 💎 💎</span><span class="payout">×50</span></div>
+      <div class="paytable-row"><span class="symbols">⭐ ⭐ ⭐</span><span class="payout">×20</span></div>
+      <div class="paytable-row"><span class="symbols">🔔 🔔 🔔</span><span class="payout">×10</span></div>
+      <div class="paytable-row"><span class="symbols">🍉 🍉 🍉</span><span class="payout">×8</span></div>
+      <div class="paytable-row"><span class="symbols">🍇 🍇 🍇</span><span class="payout">×5</span></div>
+      <div class="paytable-row"><span class="symbols">🍒 🍒 🍒</span><span class="payout">×3</span></div>
+      <div class="paytable-row"><span class="symbols">Any 2 same</span><span class="payout">×1</span></div>
+    </div>
+  </div>
+
+<script>
+  const SYMBOLS = [
+    { emoji: '🍒', payout: 3,   weight: 30 },
+    { emoji: '🍇', payout: 5,   weight: 22 },
+    { emoji: '🍉', payout: 8,   weight: 18 },
+    { emoji: '🔔', payout: 10,  weight: 12 },
+    { emoji: '⭐', payout: 20,  weight: 8  },
+    { emoji: '💎', payout: 50,  weight: 4  },
+    { emoji: '7️⃣', payout: 100, weight: 2  },
+  ];
+
+  const state = {
+    credit: 1000,
+    bet: 10,
+    win: 0,
+    spinning: false,
+  };
+
+  const BET_STEPS = [10, 20, 50, 100, 200, 500];
+
+  function weightedPick() {
+    const total = SYMBOLS.reduce((s, x) => s + x.weight, 0);
+    let r = Math.random() * total;
+    for (const s of SYMBOLS) {
+      r -= s.weight;
+      if (r <= 0) return s;
+    }
+    return SYMBOLS[0];
+  }
+
+  function buildStrip(finalSymbol, length = 20) {
+    const strip = document.createElement('div');
+    strip.className = 'reel-strip';
+    for (let i = 0; i < length; i++) {
+      const s = document.createElement('div');
+      s.className = 'symbol';
+      s.textContent = (i === length - 1 ? finalSymbol : weightedPick()).emoji;
+      strip.appendChild(s);
+    }
+    return strip;
+  }
+
+  function initReels() {
+    for (let i = 0; i < 3; i++) {
+      const reel = document.getElementById('reel' + i);
+      reel.innerHTML = '';
+      const s = document.createElement('div');
+      s.className = 'symbol';
+      s.textContent = SYMBOLS[Math.floor(Math.random() * SYMBOLS.length)].emoji;
+      reel.appendChild(s);
+    }
+  }
+
+  function updateDisplay() {
+    document.getElementById('credit').textContent = state.credit;
+    document.getElementById('betDisplay').textContent = state.bet;
+    document.getElementById('betValue').textContent = state.bet;
+    document.getElementById('win').textContent = state.win;
+  }
+
+  function setMessage(text, cls = '') {
+    const el = document.getElementById('message');
+    el.textContent = text;
+    el.className = 'message ' + cls;
+  }
+
+  function spinReel(reelIndex, finalSymbol, duration) {
+    return new Promise((resolve) => {
+      const reel = document.getElementById('reel' + reelIndex);
+      const strip = buildStrip(finalSymbol);
+      reel.innerHTML = '';
+      reel.appendChild(strip);
+      reel.classList.add('spinning');
+
+      setTimeout(() => {
+        reel.classList.remove('spinning');
+        reel.innerHTML = '';
+        const s = document.createElement('div');
+        s.className = 'symbol';
+        s.textContent = finalSymbol.emoji;
+        reel.appendChild(s);
+        resolve();
+      }, duration);
+    });
+  }
+
+  function calculatePayout(results) {
+    const [a, b, c] = results;
+    if (a.emoji === b.emoji && b.emoji === c.emoji) {
+      return { multiplier: a.payout, type: a.payout >= 100 ? 'jackpot' : 'win', symbol: a.emoji };
+    }
+    if (a.emoji === b.emoji || b.emoji === c.emoji || a.emoji === c.emoji) {
+      return { multiplier: 1, type: 'small', symbol: null };
+    }
+    return { multiplier: 0, type: 'none', symbol: null };
+  }
+
+  async function spin() {
+    if (state.spinning) return;
+    if (state.credit < state.bet) {
+      setMessage('クレジット不足です!', '');
+      return;
+    }
+
+    state.spinning = true;
+    state.credit -= state.bet;
+    state.win = 0;
+    updateDisplay();
+    setMessage('スピン中...', '');
+    document.getElementById('spinBtn').disabled = true;
+    setBetButtonsDisabled(true);
+
+    const results = [weightedPick(), weightedPick(), weightedPick()];
+
+    await Promise.all([
+      spinReel(0, results[0], 1000),
+      spinReel(1, results[1], 1500),
+      spinReel(2, results[2], 2000),
+    ]);
+
+    const payout = calculatePayout(results);
+    const winAmount = payout.multiplier * state.bet;
+
+    if (winAmount > 0) {
+      state.win = winAmount;
+      state.credit += winAmount;
+
+      if (payout.type === 'jackpot') {
+        setMessage(`🎉 JACKPOT! +${winAmount} 🎉`, 'jackpot');
+        flashReels();
+      } else if (payout.type === 'win') {
+        setMessage(`✨ WIN! +${winAmount} ✨`, 'win');
+        flashReels();
+      } else {
+        setMessage(`ペア! +${winAmount}`, '');
+      }
+    } else {
+      setMessage('ハズレ… もう一度!', '');
+    }
+
+    updateDisplay();
+    state.spinning = false;
+    document.getElementById('spinBtn').disabled = false;
+    setBetButtonsDisabled(false);
+
+    if (state.credit === 0) {
+      setMessage('ゲームオーバー! リロードして再挑戦!', '');
+      document.getElementById('spinBtn').disabled = true;
+    }
+  }
+
+  function flashReels() {
+    for (let i = 0; i < 3; i++) {
+      const reel = document.getElementById('reel' + i);
+      reel.classList.remove('flash');
+      void reel.offsetWidth;
+      reel.classList.add('flash');
+    }
+  }
+
+  function changeBet(direction) {
+    const idx = BET_STEPS.indexOf(state.bet);
+    let next = idx + direction;
+    if (next < 0) next = 0;
+    if (next >= BET_STEPS.length) next = BET_STEPS.length - 1;
+    state.bet = BET_STEPS[next];
+    updateDisplay();
+  }
+
+  function setBetButtonsDisabled(disabled) {
+    ['betDown', 'betUp', 'betMax'].forEach(id => {
+      document.getElementById(id).disabled = disabled;
+    });
+  }
+
+  document.getElementById('spinBtn').addEventListener('click', spin);
+  document.getElementById('betDown').addEventListener('click', () => changeBet(-1));
+  document.getElementById('betUp').addEventListener('click', () => changeBet(1));
+  document.getElementById('betMax').addEventListener('click', () => {
+    const max = BET_STEPS.filter(b => b <= state.credit).pop() || BET_STEPS[0];
+    state.bet = max;
+    updateDisplay();
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.code === 'Space' && !state.spinning) {
+      e.preventDefault();
+      spin();
+    }
+  });
+
+  initReels();
+  updateDisplay();
+</script>
+</body>
+</html>
